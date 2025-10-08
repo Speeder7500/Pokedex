@@ -22,8 +22,24 @@ const app = express();
 // Lancement du serveur et attendre
 app.listen(
     PORT,
-    '127.0.0.1',
+    '172.16.195.254',
     ()=>{
         console.log(`Server Pokedex is listening on ${PORT}`);
     }
 )
+
+app.get('/', (req, res) => {
+    fs.readFile(POKEDEX_SRC, 'utf-8', (err,data) => {
+        if (err){
+            console.error('Erreur lors de la lecture du fichier :', err);
+            res.status(500).send('Erreur serveur');
+            return;
+        }
+
+        // Convertion du json en objet js
+        const pokedex = JSON.parse(data);
+
+        // Renvoyer le contenu de la source
+        res.json(pokedex);
+    });
+})
