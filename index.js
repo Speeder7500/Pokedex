@@ -72,10 +72,10 @@ app.get('/hasard', (req, res) => {
 /**
  * Création de la route permettant de trouver un pokemon par son id
  */
-app.get('/pokemon/:id', (req, res) => {
-    const id = req.params.id;
-    console.log(id);
-    if (/^\d+$/.test(id)) {
+app.get('/pokemon/:data', (req, res) => {
+    const Data = req.params.data;
+    console.log(Data);
+    if (/^\d+$/.test(Data)) {
         fs.readFile(POKEDEX_SRC, 'utf-8', (err, data) => {
             if (err) {
                 console.error('Erreur lors de la lecture du fichier :', err);
@@ -83,7 +83,7 @@ app.get('/pokemon/:id', (req, res) => {
                 return;
             }
             const pokedex = JSON.parse(data);
-            const pokemon = pokedex[id];
+            const pokemon = pokedex[Data];
 
             if (pokemon) {
                 res.json(pokemon);
@@ -91,7 +91,14 @@ app.get('/pokemon/:id', (req, res) => {
                 res.status(400).send('Pokémon non trouvé')
             }
         });
-    } else {
-        res.end('Veuillez entrer un nombre entier ou un nom de pokemon');
+    } else {// a finir
+        const name = Data;
+         fs.readFile(POKEDEX_SRC, 'utf-8', (err, data) => {
+            if (err) {
+                console.error('Erreur lors de la lecture du fichier :', err);
+                res.status(500).send('Erreur serveur');
+                return;
+            }
+        });
     }
 });
