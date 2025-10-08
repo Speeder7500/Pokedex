@@ -23,14 +23,14 @@ const app = express();
 app.listen(
     PORT,
     '172.16.195.254',
-    ()=>{
+    () => {
         console.log(`Server Pokedex is listening on ${PORT}`);
     }
 )
 
 app.get('/', (req, res) => {
-    fs.readFile(POKEDEX_SRC, 'utf-8', (err,data) => {
-        if (err){
+    fs.readFile(POKEDEX_SRC, 'utf-8', (err, data) => {
+        if (err) {
             console.error('Erreur lors de la lecture du fichier :', err);
             res.status(500).send('Erreur serveur');
             return;
@@ -42,4 +42,22 @@ app.get('/', (req, res) => {
         // Renvoyer le contenu de la source
         res.json(pokedex);
     });
-})
+});
+
+app.get('/hasard', (req, res) => {
+    fs.readFile(POKEDEX_SRC, 'utf-8', (err, data) => {
+        if (err) {
+            console.error('Erreur lors de la lecture du fichier :', err);
+            res.status(500).send('Erreur serveur');
+            return;
+        }
+
+        const pokedex = JSON.parse(data);
+        const minId = 0;
+        const maxId = pokedex.length - 1;
+        console.log(maxId);
+        const randomIndex = Math.floor(Math.random() * (maxId - minId + 1)) + minId;
+        const randomPokemon = pokedex[randomIndex];
+        res.json(randomPokemon);
+    });
+});
