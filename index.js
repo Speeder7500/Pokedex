@@ -75,7 +75,7 @@ app.get('/hasard', (req, res) => {
 app.get('/pokemon/:data', (req, res) => {
     const Data = req.params.data;
     console.log(Data);
-    if (/^\d+$/.test(Data)) {
+    if (/^\d+$/.test(Data)) { // vérification si c'est un nombre entier positif
         fs.readFile(POKEDEX_SRC, 'utf-8', (err, data) => {
             if (err) {
                 console.error('Erreur lors de la lecture du fichier :', err);
@@ -91,7 +91,7 @@ app.get('/pokemon/:data', (req, res) => {
                 res.status(400).send('Pokémon non trouvé')
             }
         });
-    } else {// a finir
+    } else if (/^\p{L}+$/u.test(Data)) {// Vérification si c'est une chaîne de caractère
         const name = Data;
          fs.readFile(POKEDEX_SRC, 'utf-8', (err, data) => {
             if (err) {
@@ -99,6 +99,16 @@ app.get('/pokemon/:data', (req, res) => {
                 res.status(500).send('Erreur serveur');
                 return;
             }
+            const pokedex = JSON.parse(data);
+            const pokemon = pokedex[Data];
+
+            if (pokemon){
+                res.json(pokemon);
+            }else{
+                res.status(400).send('Pokémon non trouvé')
+            }
         });
+    } else {
+        res.end('Veuillez entrer uniquement des lettres ou des nombres.')
     }
 });
