@@ -87,28 +87,47 @@ app.get('/pokemon/:data', (req, res) => {
 
             if (pokemon) {
                 res.json(pokemon);
-            }else{
+            } else {
                 res.status(400).send('Pokémon non trouvé')
             }
         });
-    } else if (/^\p{L}+$/u.test(Data)) {// Vérification si c'est une chaîne de caractère
-        const name = Data;
-         fs.readFile(POKEDEX_SRC, 'utf-8', (err, data) => {
+    } else if (/^\p{L}+$/u.test(Data)) {// Vérification si c'est une chaîne de caractère (lettres Unicode uniquement)
+        // Lire le fichier JSON contenant le pokedex
+        fs.readFile(POKEDEX_SRC, 'utf-8', (err, data) => {
             if (err) {
                 console.error('Erreur lors de la lecture du fichier :', err);
                 res.status(500).send('Erreur serveur');
                 return;
             }
-            const pokedex = JSON.parse(data);
-            const pokemon = pokedex[Data];
+            // Normaliser la saisie pour gérer correctement les caractères Unicode
+            // - on utilise Array.from pour manipuler correctement les caractères Unicode
+            const chars = Array.from(Data);
 
-            if (pokemon){
+            // Capitaliser : première lettre en majuscule, le reste en minuscules
+            // Exemple : "pikachu" -> "Pikachu", "ÉLODIE" -> "Élodie"
+            const nom = chars.length
+                ? chars[0].toUpperCase() + chars.slice(1).join('').toLowerCase()
+                : '';
+
+            // Parser le fichier JSON en tableau JavaScript
+            const pokedex = JSON.parse(data);
+
+            // Rechercher le Pokémon dans le tableau en comparant les noms
+            // On compare `name.english` et `name.french`
+            const pokemon = pokedex.find(p => {
+                if (!p || !p.name) return false;
+                const names = [p.name.english, p.name.french].filter(Boolean);
+                return names.some(n => n=== nom);
+            });
+
+            // Si trouvé, renvoyer le Pokémon, sinon 400
+            if (pokemon) {
                 res.json(pokemon);
-            }else{
-                res.status(400).send('Pokémon non trouvé')
+            } else {
+                res.status(400).send('Pokémon non trouvé');
             }
         });
     } else {
-        res.end('Veuillez entrer uniquement des lettres ou des nombres.')
+        res.end('Veuillez entrer uniquement des lettres ou des nombres.');
     }
 });
