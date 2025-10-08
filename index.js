@@ -85,9 +85,13 @@ app.get('/pokemon/:id', (req, res) => {
             const pokedex = JSON.parse(data);
             const pokemon = pokedex[id];
 
-            res.json(pokemon);
+            if (pokemon) {
+                res.json(pokemon);
+            }else{
+                res.status(400).send('Pokémon non trouvé')
+            }
         });
     } else {
-        res.end('Veuillez entrer un nombre entier');
+        res.end('Veuillez entrer un nombre entier ou un nom de pokemon');
     }
 });
