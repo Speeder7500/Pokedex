@@ -27,7 +27,9 @@ app.listen(
         console.log(`Server Pokedex is listening on ${PORT}`);
     }
 )
-
+/**
+ * Création de la route principale
+ */
 app.get('/', (req, res) => {
     fs.readFile(POKEDEX_SRC, 'utf-8', (err, data) => {
         if (err) {
@@ -44,6 +46,9 @@ app.get('/', (req, res) => {
     });
 });
 
+/**
+ * Création de la route du hasard
+ */
 app.get('/hasard', (req, res) => {
     fs.readFile(POKEDEX_SRC, 'utf-8', (err, data) => {
         if (err) {
@@ -56,8 +61,33 @@ app.get('/hasard', (req, res) => {
         const minId = 0;
         const maxId = pokedex.length - 1;
         console.log(maxId);
+        // Choix d'un id au hasard
         const randomIndex = Math.floor(Math.random() * (maxId - minId + 1)) + minId;
         const randomPokemon = pokedex[randomIndex];
+        //Affichage du pokemon corrspondant à l'id précédent.
         res.json(randomPokemon);
     });
+});
+
+/**
+ * Création de la route permettant de trouver un pokemon par son id
+ */
+app.get('/pokemon/:id', (req, res) => {
+    const id = req.params.id;
+    console.log(id);
+    if (/^\d+$/.test(id)) {
+        fs.readFile(POKEDEX_SRC, 'utf-8', (err, data) => {
+            if (err) {
+                console.error('Erreur lors de la lecture du fichier :', err);
+                res.status(500).send('Erreur serveur');
+                return;
+            }
+            const pokedex = JSON.parse(data);
+            const pokemon = pokedex[id];
+
+            res.json(pokemon);
+        });
+    } else {
+        res.end('Veuillez entrer un nombre entier');
+    }
 });
